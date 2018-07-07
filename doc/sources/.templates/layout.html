@@ -45,6 +45,7 @@
 {%- macro sidebar() %}
       {%- if not embedded %}{% if not theme_nosidebar|tobool %}
       <div class="sphinxsidebar">
+        <div><input id="version_selector" type="spinner"></div>
         <div class="sphinxsidebarwrapper">
             <h3>Quick search</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
@@ -101,7 +102,21 @@
         COLLAPSE_MODINDEX: false,
         FILE_SUFFIX: '{{ file_suffix }}',
         HAS_SOURCE:  {{ has_source|lower }}
+
       };
+      var versions = $.getJSON("{{ url_root }}/versions.json");
+      var selector = $("#version_selector");
+      version.forEach(function(version){
+        selector.append("<option />").val(version)
+      });
+
+    $selector.on('change', function() {
+      var current = window.location;
+      var target = current.replace("{{ url_root }}", "").split('/');
+      target.shift();
+      window.location = ["{{ url_root }}", this.val()].concat(target).join('/');
+    });
+
     </script>
     {%- for scriptfile in script_files %}
     <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
