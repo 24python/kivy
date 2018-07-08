@@ -45,8 +45,9 @@
 {%- macro sidebar() %}
       {%- if not embedded %}{% if not theme_nosidebar|tobool %}
       <div class="sphinxsidebar">
-        <div><input id="version_selector" type="spinner"></div>
         <div class="sphinxsidebarwrapper">
+            <h3>Version</h3>
+            <select id="version_selector" />
             <h3>Quick search</h3>
             <form class="search" action="{{ pathto('search') }}" method="get">
                 &nbsp;
@@ -104,19 +105,6 @@
         HAS_SOURCE:  {{ has_source|lower }}
 
       };
-      var versions = $.getJSON("{{ url_root }}/versions.json");
-      var selector = $("#version_selector");
-      version.forEach(function(version){
-        selector.append("<option />").val(version)
-      });
-
-    $selector.on('change', function() {
-      var current = window.location;
-      var target = current.replace("{{ url_root }}", "").split('/');
-      target.shift();
-      window.location = ["{{ url_root }}", this.val()].concat(target).join('/');
-    });
-
     </script>
     {%- for scriptfile in script_files %}
     <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
@@ -240,6 +228,30 @@
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'pw.js'; s.parentNode.insertBefore(g,s);
   })();
+</script>
+<script>
+  var selector = $("#version_selector");
+
+  selector.on('change', function() {
+    var current = document.location.pathname;
+    // TODO find a better way to replace the current version with the new one
+    var target = current.split('/');
+    target.shift();
+    var prefix = target.shift();
+    target.shift();
+    document.location.pathname = ["", prefix, this.value].concat(target).join('/');
+  });
+
+  var url = "{{ url_root }}/versions.json";
+
+  $.getJSON(url, function(versions) {
+    versions.forEach(function(version){
+      selector.append(
+        $("<option />").val(version).html(version)
+      )
+    });
+  });
+
 </script>
 <noscript><p><img src="//pw.kivy.org/pw.php?idsite=4&rec=1" style="border:0;" alt="" /></p></noscript>
 <!-- End Piwik Tracking Code -->
